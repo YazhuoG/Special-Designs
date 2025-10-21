@@ -2,7 +2,7 @@ name: Deploy static content to Pages
 
 on:
   push:
-    branches: ["main"]      # 确保默认分支就是 main
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -24,18 +24,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          lfs: true          # ✅ 如果用了 Git LFS（比如 mp3），一定要打开
+          lfs: true                # 若用 Git LFS（mp3等），建议打开
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true        # ✅ 关键：首次自动启用 Pages 站点
 
-      - name: Add .nojekyll  # ✅ 有下划线目录时建议加上；没也不影响
+      - name: Add .nojekyll      # 可选：避免 jekyll 忽略下划线目录
         run: echo > .nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'          # 部署仓库根目录
+          path: '.'
 
       - name: Deploy to GitHub Pages
         id: deployment

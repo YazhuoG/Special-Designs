@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>我们的冒险纪念册 | HTML 单页模板</title>
+  <meta name="description" content="以不同游戏风格的 AI 插画制作的数字纪念网页：相册（主图+多图灯箱）、时间线、音乐、分享、打印。" />
+  <style>
+    :root{
+      --bg:#0f1221; --panel:#181c33; --accent:#7aa2ff; --accent-2:#ffcb6b; --text:#e9ecff; --muted:#a9b2d0; --shadow:0 10px 30px rgba(0,0,0,.35); --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;}
+    a{color:var(--accent);text-decoration:none}
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    header.hero{position:relative;overflow:hidden;border-radius:var(--radius);background:radial-gradient(1200px 500px at 80% -10%, rgba(122,162,255,.25), transparent 60%), linear-gradient(180deg, #1a2040, #0f1221)}
+    .hero-inner{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center;padding:42px 28px}
+    @media (max-width:900px){.hero-inner{grid-template-columns:1fr}}
+    .title{font-size:42px;line-height:1.15;margin:0 0 12px;font-weight:800}
+    .subtitle{color:var(--muted);margin:0 0 18px}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+    .tag{padding:6px 10px;border:1px solid rgba(255,255,255,.12);border-radius:999px;color:#d7ddff;font-size:12px;background:rgba(255,255,255,.04)}
+    .btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 16px;border-radius:12px;background:var(--accent);color:#081027;font-weight:700;box-shadow:var(--shadow);border:none;cursor:pointer}
+    .btn.secondary{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.18)}
+    .cover{aspect-ratio:16/10;border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+    .cover img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.06) contrast(1.02)}
+
+    section{margin-top:32px}
+    h2.section-title{margin:8px 0 12px;font-size:24px}
+
+    /* 生日祝福图片自适应 */
+    .birthday-section {
+      text-align: center;
+      background: #181c33;
+      border-radius: 16px;
+      padding: 30px;
+      margin-top: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+    }
+    .birthday-section img {
+      width: 100%;
+      height: auto;
+      max-width: 600px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
+    }
+    .birthday-text { margin-top: 18px; font-size: 18px; color: #ffd479; }
+
+    /* Gallery */
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:560px){.grid{grid-template-columns:1fr}}
+    .card{position:relative;overflow:hidden;border-radius:14px;background:var(--panel);box-shadow:var(--shadow);cursor:pointer}
+    .card img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .6s ease}
+    .card:hover img{transform:scale(1.03)}
+    .label{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.45);backdrop-filter:blur(2px);padding:6px 10px;border-radius:999px;font-size:12px;color:#fff}
+    .card.featured{grid-column:span 2;grid-row:span 2;position:relative}
+    @media (max-width:900px){.card.featured{grid-column:span 2;grid-row:span 1}}
+    @media (max-width:560px){.card.featured{grid-column:span 1}}
+    .badge{position:absolute;top:8px;left:8px;background:linear-gradient(90deg,#ffd479,#ff9f4a);color:#301d00;font-weight:800;border-radius:999px;padding:6px 10px;font-size:12px;box-shadow:var(--shadow)}
+
+    /* Lightbox */
+    .lightbox{position:fixed;inset:0;background:rgba(4,6,14,.86);backdrop-filter:blur(3px);display:none;place-items:center;padding:0;z-index:50}
+    .lightbox.open{display:grid}
+    .lightbox-inner{
+      max-width: 96vw;
+      max-height: 96vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      pointer-events: none; /* route events to children we allow */
+    }
+    /* The image itself is driven purely by transform (no max-width/height). */
+    #lbImg{
+      max-width: none;
+      max-height: none;
+      width: auto; height: auto;
+      user-select: none; -webkit-user-drag: none;
+      touch-action: none;
+      transform-origin: center center;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      z-index: 1;
+      pointer-events: auto; /* allow pan/zoom on the image */
+    }
+    .lightbox .cap{margin-top:10px;color:#cfd5ff;text-align:center}
+    /* High z-index buttons that always stay clickable */
+    .nav{
+      position:absolute;top:50%;transform:translateY(-50%);
+      width:64px;height:64px;border-radius:50%;
+      display:grid;place-items:center;
+      background:rgba(0,0,0,.35);
+      border:0px solid rgba(255,255,255,.25);
+      cursor:pointer;user-select:none;
+      z-index:9999;pointer-events:auto;backdrop-filter:blur(2px);
+      font-size:40px;color:#fff;
+    }
+    .nav.left{left:10px; padding-top: 0px;}
+    .nav.right{right:10px; padding-top: 0px;}
+    .lightbox .close{
+      position:absolute;top:14px;right:14px;
+      background:rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.25);
+      color:#fff;border-radius:10px;padding:8px 12px;cursor:pointer;
+      z-index:9999;pointer-events:auto;backdrop-filter:blur(2px)
+    }
+    @media (max-width:640px){.nav{width:56px;height:56px;font-size:32px}.nav.left{left:6px}.nav.right{right:6px}}
+
+    /* Timeline */
+    .timeline{display:grid;gap:14px}
+    .event{display:grid;grid-template-columns:120px 1fr;gap:16px;background:var(--panel);border-radius:14px;padding:14px;align-items:center}
+    @media (max-width:700px){.event{grid-template-columns:1fr}}
+    .stamp{font-weight:700;color:var(--accent-2)}
+    .event .desc{color:var(--muted)}
+
+    /* Footer */
+    footer{margin:36px 0 4px;color:#95a2d9;text-align:center;opacity:.85}
+
+    /* Print */
+    @media print{.btns,.audio, .share, .nav, .badge{display:none !important}; body{background:#fff;color:#222}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero" role="banner">
+      <div class="hero-inner">
+        <div>
+          <h1 class="title">我们的旅程 🎁 生日纪念册</h1>
+          <p class="subtitle">以不同游戏风格的 AI 插画记录彼此的回忆：史诗、浪漫、诙谐、治愈，全部汇聚成一段只属于我们的旅程。</p>
+          <div class="tags" id="tagbar"></div>
+          <div class="btns">
+            <button class="btn" id="btnPlay">▶ 播放音乐</button>
+            <button class="btn secondary share" id="btnShare">↗️ 分享网页</button>
+            <button class="btn secondary" onclick="window.print()">🖨 打印/存PDF</button>
+          </div>
+        </div>
+        <div class="cover"><img id="coverImg" alt="封面" loading="lazy"/></div>
+      </div>
+    </header>
+
+    <section class="birthday-section">
+      <h2>生日祝福 🎂 Birthday Wishes</h2>
+      <img src="Birthday_Wish.png" alt="生日祝福图"/>
+      <div class="birthday-text">愿我们共同的冒险永远充满光亮与温柔。生日快乐！</div>
+    </section>
+
+    <canvas id="confetti"></canvas>
+
+    <section aria-labelledby="gal-title">
+      <h2 class="section-title" id="gal-title">相册 🖼️ Gallery</h2>
+      <div class="grid" id="gallery"></div>
+    </section>
+
+    <section aria-labelledby="timeline-title">
+      <h2 class="section-title" id="timeline-title">时间线 ⏳ Timeline</h2>
+      <div class="timeline" id="timeline"></div>
+    </section>
+
+    <section class="audio" aria-labelledby="audio-title">
+      <h2 class="section-title" id="audio-title">配乐 🎵 BGM</h2>
+      <audio id="bgm" preload="auto" controls style="width:100%">
+        <source src="Proof_of_a_hero.mp3" type="audio/mpeg"/>
+        你的浏览器不支持音频播放。
+      </audio>
+    </section>
+
+    <footer>© <span id="year"></span> Our Adventure • Made with ❤</footer>
+  </div>
+
+  <!-- 轻量 Lightbox（支持多图左右切换、键盘与触摸） -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="预览大图">
+    <div class="lightbox-inner">
+      <button class="close" id="lbClose" aria-label="关闭">✕</button>
+      <div class="nav left" id="lbPrev" aria-label="上一张">‹</div>
+      <div class="nav right" id="lbNext" aria-label="下一张">›</div>
+      <!-- single image driven by transform -->
+      <img id="lbImg" alt="预览图"/>
+    </div>
+  </div>
+
+  <script>
+    // —— ① 数据区：按需替换 ——
+    const COVER_URL = "Cover.webp";
+
+    const album = [
+      {
+        title:"怪物猎人：世界", featured:true,
+        main:"images/Monster_Hunter_world/1.jpg",
+        gallery:[
+          "images/Monster_Hunter_world/2.webp",
+          "images/Monster_Hunter_world/3.webp",
+          "images/Monster_Hunter_world/4.webp",
+          "images/Monster_Hunter_world/5.webp",
+          "images/Monster_Hunter_world/6.webp"
+        ],
+        caption:"虚黑城遗迹与黑龙"
+      },
+      {
+        title:"双影奇境",
+        main:"images/Split_Fiction/0.jpg",
+        gallery:["images/Split_Fiction/1.jpg","images/Split_Fiction/2.jpg","images/Split_Fiction/3.jpg","images/Split_Fiction/4.jpg","images/Split_Fiction/5.jpg","images/Split_Fiction/6.jpg"],
+        caption:"光影分区 · 团队协作"
+      },
+      {
+        title:"双人成行",
+        main:"images/It_Takes_Two/0.jpg",
+        gallery:["images/It_Takes_Two/1.jpg","images/It_Takes_Two/2.jpg","images/It_Takes_Two/3.jpg","images/It_Takes_Two/4.jpg","images/It_Takes_Two/5.jpg"],
+        caption:"玩具世界的欢乐冒险"
+      },
+      {
+        title:"We Were Here Series",
+        main:"images/We_Were_Here/0.jpg",
+        gallery:["images/We_Were_Here/1.jpg","images/We_Were_Here/2.jpg","images/We_Were_Here/3.jpg","images/We_Were_Here/4.jpg","images/We_Were_Here/5.jpg","images/We_Were_Here/6.jpg"],
+        caption:"冰原解谜 · 并肩前行"
+      },
+      {
+        title:"艾尔登法环",
+        main:"images/Elden_Ring/0.webp",
+        gallery:["images/Elden_Ring/1.jpg","images/Elden_Ring/2.jpg","images/Elden_Ring/3.jpg","images/Elden_Ring/4.jpg","images/Elden_Ring/5.jpg"],
+        caption:"黄金树与骑士"
+      },
+      {
+        title:"Carry The Glass",
+        main:"images/Carry_The_Glass/0.jpg",
+        gallery:["images/Carry_The_Glass/1.jpg","images/Carry_The_Glass/2.jpg","images/Carry_The_Glass/3.jpg","images/Carry_The_Glass/4.jpg","images/Carry_The_Glass/5.jpg"],
+        caption:"夜色托举发光玻璃"
+      },
+      {
+        title:"Goat Simulator 3",
+        main:"images/Goat_Simulator_3/0.jpg",
+        gallery:["images/Goat_Simulator_3/1.jpg","images/Goat_Simulator_3/1.jpg","images/Goat_Simulator_3/2.jpg","images/Goat_Simulator_3/3.jpg","images/Goat_Simulator_3/4.gif","images/Goat_Simulator_3/5.jpg"],
+        caption:"混乱而荒诞的欢笑"
+      },
+      {
+        title:"小小梦魇 3",
+        main:"images/Little_Nightmares_3/0.jpg",
+        gallery:["images/Little_Nightmares_3/1.jpg","images/Little_Nightmares_3/2.jpg","images/Little_Nightmares_3/3.jpg","images/Little_Nightmares_3/4.jpg","images/Little_Nightmares_3/5.jpg","images/Little_Nightmares_3/6.jpg","images/Little_Nightmares_3/7.jpg"],
+        caption:"阴影都市中的微光探索"
+      }
+    ];
+
+    const milestones = [
+      {date:"2023-10-01", desc:"第一次一起通关合作解谜"},
+      {date:"2024-02-14", desc:"收到第一幅 AI 情侣插画"},
+      {date:"2025-10-19", desc:"九界联动大海报完成"}
+    ];
+
+    const tags = ["数字相册", "纪念礼物", "怪物猎人：世界"];
+
+    // —— ② 渲染 ——
+    const $ = (sel,root=document)=>root.querySelector(sel);
+    const $$ = (sel,root=document)=>Array.from(root.querySelectorAll(sel));
+
+    const coverImg = $("#coverImg");
+    coverImg.src = COVER_URL;
+    coverImg.alt = "封面 / Cover";
+
+    const tagbar = $("#tagbar");
+    tagbar.innerHTML = tags.map(t=>`<span class="tag">${t}</span>`).join("");
+
+    const grid = $("#gallery");
+    grid.innerHTML = album.map((item,i)=>{
+      const cls = item.featured ? 'card featured' : 'card';
+      const badge = item.featured ? '<span class="badge">CENTER</span>' : '';
+      return `
+        <figure class="${cls}" data-i="${i}">
+          ${badge}
+          <img src="${item.main}" alt="${item.title}" loading="lazy"/>
+          <figcaption class="label">${item.title}</figcaption>
+        </figure>
+      `;
+    }).join("");
+
+    // —— ③ 灯箱：适应 + 缩放/平移 + 导航永不被遮挡 —— 
+    const lightbox = $("#lightbox"), lbImg = $("#lbImg");
+    const inner = document.querySelector('.lightbox-inner');
+    const lbClose = $("#lbClose"), lbPrev = $("#lbPrev"), lbNext = $("#lbNext");
+    const lbCap = $("#lbCap"); // 可为空
+
+    let scale = 1, minScale = 1, maxScale = 6;
+    let tx = 0, ty = 0;
+    let isPanning = false, startX=0, startY=0;
+    let lastTouchDist = 0;
+
+    function setTransform(){ lbImg.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`; }
+
+    function getViewportBox(){
+      const rect = inner.getBoundingClientRect();
+      const leftW  = lbPrev ? lbPrev.getBoundingClientRect().width : 0;
+      const rightW = lbNext ? lbNext.getBoundingClientRect().width : 0;
+      const PAD = 8;
+      return { w: Math.max(0, rect.width  - leftW - rightW - PAD*2),
+               h: Math.max(0, rect.height - PAD*2) };
+    }
+
+    function fitToScreen(){
+      const iw = lbImg.naturalWidth  || lbImg.width;
+      const ih = lbImg.naturalHeight || lbImg.height;
+      const box = getViewportBox();
+      if(!iw || !ih || !box.w || !box.h) return;
+      const contain = Math.min(box.w/iw, box.h/ih);
+      minScale = contain;
+      scale = contain;
+      tx = 0; ty = 0;
+      setTransform();
+    }
+
+    function showImage(){
+      const item = album[currentAlbumIndex];
+      const imgs = (item.gallery && item.gallery.length) ? item.gallery : [item.main];
+      const len = imgs.length;
+      currentImageIndex = ((currentImageIndex % len) + len) % len;
+      const src = imgs[currentImageIndex];
+      lbImg.onload = async ()=>{ try{ if('decode' in lbImg) await lbImg.decode(); }catch(e){} fitToScreen(); };
+      lbImg.src = src;
+      lbImg.alt = item.title;
+      if (lbCap) lbCap.textContent = `${item.title} · ${item.caption || ''} (${currentImageIndex+1}/${len})`;
+    }
+
+    function openLightbox(i){ currentAlbumIndex = i; currentImageIndex = 0; showImage(); lightbox.classList.add('open'); }
+    function closeLightbox(){ lightbox.classList.remove('open'); }
+    function nextImage(step=1){ currentImageIndex += step; showImage(); }
+
+    // Grid click
+    grid.addEventListener('click', e=>{
+      const fig = e.target.closest('.card'); if(!fig) return;
+      openLightbox(+fig.dataset.i);
+    });
+
+    // Buttons
+    lbClose.addEventListener('click', closeLightbox);
+    lbNext.addEventListener('click', ()=> nextImage(1));
+    lbPrev.addEventListener('click', ()=> nextImage(-1));
+    lightbox.addEventListener('click', e=>{ if(e.target===lightbox) closeLightbox(); });
+
+    // Resize
+    window.addEventListener('resize', ()=>{ if(lightbox.classList.contains('open')) fitToScreen(); });
+
+    // Wheel zoom (pointer-centered)
+    inner.addEventListener('wheel', (e)=>{
+      if(!lightbox.classList.contains('open')) return;
+      e.preventDefault();
+      const rect = lbImg.getBoundingClientRect();
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height/2;
+      const mx = e.clientX - cx - tx;
+      const my = e.clientY - cy - ty;
+      const delta = Math.sign(e.deltaY);
+      const factor = Math.pow(1.1, -delta);
+      const prev = scale;
+      scale = Math.max(minScale*0.5, Math.min(maxScale, scale*factor));
+      const k = scale/prev;
+      tx -= mx*(k-1); ty -= my*(k-1);
+      setTransform();
+    },{passive:false});
+
+    // Double click: fit <-> 2x
+    inner.addEventListener('dblclick', ()=>{
+      if(scale <= minScale*1.01){ scale = Math.min(maxScale, minScale*2); }
+      else{ scale = minScale; tx = 0; ty = 0; }
+      setTransform();
+    });
+
+    // Drag to pan (ignore clicks on buttons)
+    inner.addEventListener('mousedown', (e)=>{
+      if(e.target.closest('.nav, .close')) return;
+      isPanning = true;
+      startX = e.clientX - tx; startY = e.clientY - ty;
+      lbImg.classList.add('grabbing');
+    });
+    window.addEventListener('mousemove', (e)=>{ if(!isPanning) return; tx = e.clientX - startX; ty = e.clientY - startY; setTransform(); });
+    window.addEventListener('mouseup', ()=>{ isPanning=false; lbImg.classList.remove('grabbing'); });
+
+    // Touch: pan & pinch (ignore buttons)
+    let touchMode=null;
+    inner.addEventListener('touchstart', (e)=>{
+      if(e.target.closest('.nav, .close')) return;
+      if(e.touches.length===1){
+        touchMode='pan';
+        startX = e.touches[0].clientX - tx;
+        startY = e.touches[0].clientY - ty;
+      }else if(e.touches.length===2){
+        touchMode='pinch';
+        lastTouchDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    },{passive:true});
+    inner.addEventListener('touchmove', (e)=>{
+      if(touchMode==='pan' && e.touches.length===1){
+        tx = e.touches[0].clientX - startX; ty = e.touches[0].clientY - startY; setTransform();
+      }else if(touchMode==='pinch' && e.touches.length===2){
+        e.preventDefault();
+        const d = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const prev = scale; const factor = d / (lastTouchDist || d);
+        scale = Math.max(minScale*0.98, Math.min(maxScale, scale*factor));
+        lastTouchDist = d; setTransform();
+      }
+    },{passive:false});
+    inner.addEventListener('touchend', ()=>{ if(touchMode && event.touches?.length===0) touchMode=null; }, {passive:true});
+
+    // Keyboard
+    window.addEventListener('keydown', (e)=>{
+      if(!lightbox.classList.contains('open')) return;
+      if(e.key==='Escape') closeLightbox();
+      if(e.key==='ArrowRight') nextImage(1);
+      if(e.key==='ArrowLeft')  nextImage(-1);
+      if(e.key==='0'){ fitToScreen(); }
+      if(e.key==='='||e.key==='+'){ scale = Math.min(maxScale, scale*1.1); setTransform(); }
+      if(e.key==='-'||e.key==='_'){ scale = Math.max(minScale*0.98, scale/1.1); setTransform(); }
+    });
+
+    // Timeline render
+    const timeline = $("#timeline");
+    timeline.innerHTML = milestones.map(m=>`
+      <div class="event">
+        <div class="stamp">${m.date}</div>
+        <div class="desc">${m.desc}</div>
+      </div>
+    `).join("");
+
+    // Year
+    $("#year").textContent = new Date().getFullYear();
+
+    // Music
+    const bgm = $("#bgm"), btnPlay = $("#btnPlay");
+    let playing = false;
+    btnPlay.addEventListener('click', async ()=>{
+      try{
+        if(!playing){ await bgm.play(); btnPlay.textContent='⏸ 暂停音乐'; playing = true; }
+        else{ bgm.pause(); btnPlay.textContent='▶ 播放音乐'; playing = false; }
+      }catch(err){ alert('请先与页面交互后再播放音频（浏览器限制）'); }
+    });
+
+    // function tryPlayMusic() {
+    //   if (!playing) {
+    //       bgm.play().then(() => {
+    //       playing = true;
+    //       console.log("🎵 音乐已自动播放");
+    //       }).catch(err => {
+    //       console.warn("⚠️ 自动播放受限，将在用户交互后启动", err);
+    //       });
+    //   }
+    // }
+
+    // document.addEventListener("click", tryPlayMusic);
+    // document.addEventListener("scroll", tryPlayMusic);
+    // document.addEventListener("keydown", tryPlayMusic);
+
+    // Share
+    const btnShare = $("#btnShare");
+    btnShare?.addEventListener('click', async ()=>{
+      if(navigator.share){
+        await navigator.share({title: document.title, text: '送给你的数字纪念册', url: location.href});
+      }else{ alert('你的浏览器不支持原生分享，可复制地址栏链接'); }
+    });
+
+    // Open
+    let currentAlbumIndex = 0, currentImageIndex = 0;
+    function nextImage(step){ currentImageIndex += step; showImage(); }
+    grid.addEventListener('click', e=>{
+      const fig = e.target.closest('.card'); if(!fig) return;
+      openLightbox(+fig.dataset.i);
+    });
+  </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
-# 🎁 Special-Designs — 数字纪念网页模板
+# 🎁 Special-Designs — 数字纪念网页
 
-一个基于 **HTML + CSS + JS** 的单页数字纪念册模板，用于展示 AI 绘制的游戏风格插画、相册、时间线与生日祝福。  
+一个基于 **HTML + CSS + JS** 的单页数字纪念册模板，用于展示游戏风格插画、相册、时间线与生日祝福。  
 轻量、可自托管，适合做成网页版纪念礼物。
 
 ---
@@ -32,3 +32,11 @@ Special-Designs/
 ├─ Proof_of_a_hero.mp3 # 背景音乐
 ├─ preview.html # 主网页（打开即用）
 └─ README.md # 当前文档
+
+---
+
+❤️ 致谢
+
+设计与开发：Yazhuo Gao
+灵感来源：游戏插画 × AI 纪念创作
+部署支持：GitHub Pages Actions 自动化

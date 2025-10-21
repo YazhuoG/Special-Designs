@@ -24,12 +24,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          lfs: true                 # 若 repo 使用了 Git LFS（如 mp3）
+          lfs: true
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
-          enablement: true          # 首次自动启用 Pages
+          enablement: true
 
       - name: Add .nojekyll
         run: echo > .nojekyll
@@ -37,7 +37,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'                 # 如果首页在 docs/，改成 'docs'
+          path: '.'   # 你的 index.html 在根目录就用 '.'
 
       - name: Deploy to GitHub Pages
         id: deployment
